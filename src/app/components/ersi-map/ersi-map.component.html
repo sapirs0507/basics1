@@ -1,0 +1,91 @@
+<div>
+    <h1>ersi map</h1>
+</div>
+
+<div class="esri-map-page">
+<div id="viewDiv" #viewDiv></div>
+<div id="tableDiv" #tableDiv></div>
+<div class="menu">
+    <form [formGroup]="focusPoint" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="fill">
+            <mat-label>Latitude</mat-label>
+            <input type="number" matInput placeholder="latitude..." formControlName="latitude">
+          </mat-form-field>
+          <mat-form-field appearance="fill">
+            <mat-label>Longitude</mat-label>
+            <input type="number" matInput placeholder="longitude..." formControlName="longitude">
+          </mat-form-field>
+        <button mat-raised-button color="primary" type="submit">Focus</button>
+    </form>
+
+    <div class="scale">
+        <label for="zoomScale">Scale: </label>
+        <mat-slider [min]="minValue" [max]="maxValue" [step]="step" >
+            <input 
+                id="scale" 
+                matSliderThumb
+                [formControl]="scale"   
+                [(value)]="matSliderScaleValue" 
+                (valueChange)="onMatSliderScaleValueUpdated()" 
+                (change)="onMatSliderScaleValueUpdated()"
+            >
+        </mat-slider>
+    </div>
+    <div class="zoom">
+        <label for="zoom">Zoom: </label>
+        <mat-slider min="2" max="14" step="1" >
+            <input 
+                matSliderThumb 
+                id="zoom" 
+                [formControl]="zoom"
+                [(value)]="matSliderZoomValue" 
+                (change)="onZoomClick()"
+                (valueChange)="onZoomClick()"
+                >
+        </mat-slider>
+    </div>
+
+    <div class="button-container">
+        <mat-form-field appearance="fill">
+            <mat-label>Graphical Choice</mat-label>
+            <mat-select [(ngModel)]="GrahpicalChoicesControl" (ngModelChange)="OnSelectionChange()">
+                <div *ngFor="let choice of GraphicalChoices">
+                    <mat-option [value]="choice.value" >
+                        {{choice.name}}
+                    </mat-option>
+                </div>
+            </mat-select>
+          </mat-form-field>
+    </div>
+    
+    <div class="button-container">
+    <button 
+        mat-raised-button 
+        color="primary" 
+        (click)="onAddBlueLines()"
+    >
+        Activate Blue lines Layer
+    </button>
+   </div>
+   <div class="button-container">
+    <button 
+        mat-raised-button 
+        color="primary" 
+        (click)="onClearGraphics()"
+    >
+        Clear
+    </button>
+   </div>
+   <div class="button-container">
+    <button 
+        mat-raised-button 
+        color="primary" 
+        (click)="On1()"
+    >
+        Find Features
+    </button>
+   </div>
+  
+  
+</div>
+</div>
