@@ -18,6 +18,10 @@ import MapImageLayer from "@arcgis/core/layers/MapImageLayer";
 import Sublayer from "@arcgis/core/layers/support/Sublayer";
 // import FeatureTable from "@arcgis/core/widgets/FeatureTable";
 import * as query from "@arcgis/core/rest/query";
+import Legend from "@arcgis/core/widgets/Legend";
+import Expend from "@arcgis/core/widgets/Expand";
+
+
 
 
 import Query from "@arcgis/core/rest/support/Query";
@@ -27,6 +31,7 @@ import { takeUntil } from 'rxjs';
 import { Subject } from 'rxjs';
 
 import esri = __esri;
+import { PeriodicElement } from 'src/app/interfaces/PeriodicElement.interface';
 
 
 @Injectable({
@@ -37,8 +42,9 @@ export class EsriMapRxjsService implements OnInit, OnDestroy {
   untilServiceFinished: Subject<void> = new Subject();
   mapUpdated: Subject<MapView> = new Subject<MapView>();
   container: Subject<ElementRef> = new Subject<ElementRef>();
+  attribuesArray$: Subject<PeriodicElement[]> = new Subject<PeriodicElement[]>();
   private symbol: object = symbol
-
+  private showLegend: boolean = true;
   private container_value?: ElementRef;
   private map?: Map;
   private mapView?: MapView;
@@ -49,6 +55,7 @@ export class EsriMapRxjsService implements OnInit, OnDestroy {
 
   private linesArray!: esri.Point[]; // as one line, or each two points are a line
   private polygonArray!: esri.Point[];
+  private attributesArray!: PeriodicElement[];
 
    saptialRef = new SpatialReference({
     wkid: 2039
@@ -101,8 +108,12 @@ export class EsriMapRxjsService implements OnInit, OnDestroy {
     // set graphicalChoice = {0: point, 1: line, 2: polygon}
     // click = {0: graphics, 1: query}
     this.graphicalChoice = newGraphicalChoice;
-    this.clickEventChoice = this.graphicalChoice===onClickEventChoices.graphic? 
+    this.clickEventChoice = this.graphicalChoice !== -1? 
                             onClickEventChoices.graphic: onClickEventChoices.queryLayers;
+  }
+
+  setClickEventChoice = (choice: number) => {
+    this.clickEventChoice = choice;
   }
 
   setContainer = (elRef: ElementRef) => {
@@ -166,6 +177,7 @@ export class EsriMapRxjsService implements OnInit, OnDestroy {
       //emit the finished map 
       this.mapUpdated.next(this.mapView);
 
+      
   }
 
   setMapViewEvents = () => {
@@ -174,6 +186,7 @@ export class EsriMapRxjsService implements OnInit, OnDestroy {
       //change location later
       this.polygonArray = new Array<esri.Point>();
       this.linesArray = new Array<esri.Point>();
+
       
       this.mapView?.on('click', (event: esri.ViewClickEvent) => {
        
@@ -248,36 +261,12 @@ export class EsriMapRxjsService implements OnInit, OnDestroy {
     layer.when(() =>{
       // layer instance created
           this.map?.add(layer);
+    }).then(()=>{
+      this.getLegend();
     })
+
     
   }
-
-  // addMapFeatures = () => {
-  //   //  blue lines feature layer
-  //   // create the feature layer
-  //   const layer = new FeatureLayer({
-  //     title: BlueLinesLayer.title,
-  //     url: BlueLinesLayer.url,
-  //     copyright: BlueLinesLayer.copyright, //where is the service from
-  //     spatialReference: this.saptialRef, //same as the mapview
-  //     minScale: BlueLinesLayer.minScale,
-  //     maxScale: BlueLinesLayer.maxScale,
-  //     fullExtent: BlueLinesLayer.fullExtent //same as the mapview
-  //   });
-
-  //   layer.load().then(() => {
-  //     // Non-spatial table instance can be created from the table url in a service and the table must 
-  //     // be loaded by calling load() method.
-  //     if (layer.isTable) {
-  //       this.map?.tables.add(layer);
-  //     }
-  //     else {
-  //       // For a layer to be visible in a view, it must be added to the Map referenced by the view
-  //       this.map?.add(layer);
-  //     }
-  //   })
-
-  // }
 
   addPointToMapView = (point: esri.Point) => {
     // take Point object from the event and add it to the graphics layer
@@ -386,18 +375,7 @@ export class EsriMapRxjsService implements OnInit, OnDestroy {
 
   filterLayerByExtent = (point: esri.Point) => {
     const currentExtent = this.mapView?.extent as Extent;
-    // const layer = new FeatureLayer({
-    //   title: BlueLinesLayer.title,
-    //   url: BlueLinesLayer.url,
-    //   copyright: BlueLinesLayer.copyright, //where is the service from
-    //   spatialReference: this.saptialRef, //same as the mapview
-    //   minScale: BlueLinesLayer.minScale,
-    //   maxScale: BlueLinesLayer.maxScale,
-      
-    //   fullExtent: currentExtent
-    // });
-
-    // const finalLayer = new FeatureLayer();
+   
 
     const query = new Query({
       outFields: ['pl_name', 'pl_number', 'plan_area_name', 'station_desc', 'shape_area'],
@@ -411,30 +389,6 @@ export class EsriMapRxjsService implements OnInit, OnDestroy {
       console.log(layerView.layer.type) 
     })
 
-    // layer.queryFeatures(query)
-    //   .then((res: FeatureSet) => {
-    //     const feautres = res.features;
-    //     const finalLayer = new FeatureLayer({
-    //       fields: res.fields,
-    //       // objectIdField: "objectid",
-
-    //       geometryType: layer.geometryType,
-    //       spatialReference: layer.spatialReference,
-    //       fullExtent: currentExtent
-    //     });
-    //     this.map?.add(finalLayer);
-    //     feautres.map(feautre => {
-    //       finalLayer
-    //       console.log(feautre.attributes)
-    //       console.log("---------------\n",
-    //         "feature attributes: ",
-    //         "\nname:   ", feautre.attributes.pl_name,
-    //         "\nnumber:   ", feautre.attributes.pl_number,
-    //         "\narea:   ", feautre.attributes.plan_area_name,
-    //         "\nstatus: ", feautre.attributes.station_desc,
-    //         "\nshape area:   ", feautre.attributes.shape_area);
-    //     });
-    //   })
 
   }
 
@@ -451,16 +405,51 @@ export class EsriMapRxjsService implements OnInit, OnDestroy {
    
     query.executeQueryJSON(BlueLinesLayer.url, queryObject)
     .then((res: FeatureSet)=>{
-      
-      res.features.forEach(feature=>{
-        console.log(feature.attributes);
-        
-        
-      })
+      this.clearArray();
+      let arr = res.features.filter((feature, index)=>index<3).map((feature=>feature.attributes));
+      this.attributesArray = [...arr];
+      this.attribuesArray$.next([...arr]);
     })
   }
 
-  
+  getAttributesArray = () => {
+    if(this.attributesArray && this.attributesArray.length > 0)
+      return this.attributesArray;
+    else return new Array() as PeriodicElement[];
+  }
+
+  private clearArray = () => {
+    if(!this.attributesArray)
+      this.attributesArray = new Array();
+    else{
+    for (let i = 0; i < this.attributesArray.length; i++) {
+      this.attributesArray.pop();
+    }
+  }
+  }
+
+  getLegend = () => {
+    const myLayer = this.map?.findLayerById('map_image_layer_blue_lines');
+    if(myLayer?.isFulfilled() && this.showLegend){
+    const legend = new Expend({
+      view: this.mapView,
+      expanded: true,
+      content: new Legend({
+                  view: this.mapView,
+                  layerInfos: [
+                    {
+                      layer: myLayer,
+                      title: 'מקרא מפה'
+                    }
+                  ]
+                })
+    })
+    
+    this.mapView?.ui.add(legend, "bottom-right");
+    this.showLegend = !this.showLegend;
+  }
+  }
+
 
   private _canActivateMapFunctions() {
     return this.isMapViewInit;

@@ -15,6 +15,12 @@ import {MatSelectModule} from '@angular/material/select';
 import {MatInputModule} from '@angular/material/input';
 import {MatTableModule} from '@angular/material/table';
 import { PlansTableComponent } from './components/plans-table/plans-table.component';
+// import { PointTableAttributesComponent } from './components/ersi-map/point-table-attributes/point-table-attributes.component';
+import { MapComponent } from './components/ersi-map/map/map.component';
+import { MatExpansionModule } from '@angular/material/expansion';
+import {MatTabsModule} from '@angular/material/tabs';
+import { PointTableAttributesComponent } from './components/ersi-map/table/point-table-attributes/point-table-attributes.component';
+
 
 
 // import {} from '@angular/material/form-field'
@@ -24,7 +30,9 @@ import { PlansTableComponent } from './components/plans-table/plans-table.compon
   declarations: [
     AppComponent,
     ErsiMapComponent,
-    PlansTableComponent
+    PlansTableComponent,
+    PointTableAttributesComponent,
+    MapComponent
   ],
   imports: [
     BrowserModule,
@@ -38,7 +46,9 @@ import { PlansTableComponent } from './components/plans-table/plans-table.compon
     MatFormFieldModule,
     MatSelectModule,
     MatInputModule,
-    MatTableModule
+    MatTableModule,
+    MatExpansionModule,
+    MatTabsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -4,9 +4,9 @@
   flex: 7;
   padding: 1em;
   margin: 0 auto;
-  height: 90vh;
+  height: 85vh;
   width: 100vh;
-  min-height: 90vh;
+  min-height: 85vh;
 }
 
 mat-slider {
@@ -16,13 +16,26 @@ mat-slider {
 .example-container mat-form-field+mat-form-field {
   margin-left: 8px;
 }
+.mat-mdc-form-field + .mat-mdc-form-field {
+  margin-left: 8px;
+}
+
+.AccordionWidth{
+  max-width: 25em;
+  margin: 0 auto;
+}
 
 h1 {
   text-align: center;
   text-decoration: underline;
 }
 
+.example-stretched-tabs {
+  max-width: 800px;
+}
+
 .menu {
+  position: relative;
   margin: 1em auto;
   display: flex;
   flex-direction: column;
@@ -32,9 +45,10 @@ h1 {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-
     margin: 1em auto;
-
+    .btn{
+      margin: 15px;
+    }
   }
 
   form,

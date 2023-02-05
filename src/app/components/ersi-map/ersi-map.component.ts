@@ -8,6 +8,7 @@ import { Subject } from 'rxjs';
 import { graphicalChoices } from 'src/app/enums/graphicalChoices.enum';
 import { IsraelCoordinates } from 'src/app/config/esri-map.config';
 import { FormGroup, FormControl } from '@angular/forms';
+import { PeriodicElement } from 'src/app/interfaces/PeriodicElement.interface';
 // import MapView from '@arcgis/core/views/MapView';
 
 @Component({
@@ -19,8 +20,9 @@ export class ErsiMapComponent implements AfterViewInit, OnInit, OnDestroy{
   // main map view
   // the DOM element to bind the MapView to
   @ViewChild('viewDiv', { static: true }) private mapViewEl!: ElementRef;
-  @ViewChild('tableDiv', { static: true }) private tableDiv!: ElementRef;
+  // @ViewChild('tableDiv', { static: true }) private tableDiv!: ElementRef;
   title = 'ArcGIS angular map';
+  panelOpenState = true;
   GraphicalChoices = [
     {
       value: -1,
@@ -40,7 +42,7 @@ export class ErsiMapComponent implements AfterViewInit, OnInit, OnDestroy{
     }
   ]
   GrahpicalChoicesControl: number = -1;
-
+  data?: PeriodicElement[];
   scale = new FormControl(1);
   zoom = new FormControl(2);
   matSliderScaleValue: number = 5000000;
@@ -82,6 +84,13 @@ export class ErsiMapComponent implements AfterViewInit, OnInit, OnDestroy{
           this.isInitialized = true;
         }
       });
+
+      this.mapService.attribuesArray$
+      .pipe(takeUntil(this.untilServiceFinished))
+      .subscribe((data: PeriodicElement[])=>{
+        this.data = data;
+      })
+
       // update the element ref inside the service and only then initialize the map and mapview
       // otherwise it won't have the mapView dom element reference
       this.mapService.setContainer(this.mapViewEl);
@@ -106,6 +115,11 @@ export class ErsiMapComponent implements AfterViewInit, OnInit, OnDestroy{
   onScaleClick = () => {
     // set the map view's scale
     this.mapService.setMapViewScale(<number>this.scale.value);
+  }
+
+
+  getTable = () => {
+    this.data = this.mapService.getAttributesArray() as PeriodicElement[];
   }
 
   onMatSliderScaleValueUpdated = () => {
@@ -134,6 +148,7 @@ export class ErsiMapComponent implements AfterViewInit, OnInit, OnDestroy{
 
   onAddBlueLines = () => {
     //add the blue lines map image layer to the map
+    this.mapService.setGraphicalChoice(-1);
     this.mapService.addMapImageLayer();
   }
 
@@ -142,23 +157,6 @@ export class ErsiMapComponent implements AfterViewInit, OnInit, OnDestroy{
     
   }
 
-  On1 = () => {
-    this.mapService.setGraphicalChoice(-1);
-  }
-
-  //set the graphical choice with the following three functions
-  // OnPaintPoint = () => {
-  //   this.mapService.graphicalChoice = graphicalChoices.points;
-  // }
-
-  // OnPaintLines = () => {
-  //   this.mapService.graphicalChoice = graphicalChoices.lines;
-  // }
-
-  // OnPaintPolygon = () => {
-  //   this.mapService.graphicalChoice = graphicalChoices.polygon;
-  // }
-
- 
+  
 
 }
