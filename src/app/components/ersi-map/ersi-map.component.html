@@ -1,12 +1,13 @@
 <div>
     <h1>ersi map</h1>
 </div>
-
+<!-- map and legacy -->
 <div class="esri-map-page">
     <div id="viewDiv" #viewDiv></div>    
 <div id="tableDiv" #tableDiv></div>
 
 <mat-tab-group mat-stretch-tabs class="example-stretched-tabs mat-elevation-z4">
+    <!-- focus on coordinates -->
     <mat-tab label="Focus"> 
         <div class="menu">
         <form [formGroup]="focusPoint" (ngSubmit)="onSubmit()">
@@ -23,36 +24,38 @@
     </div>
     </mat-tab>
     <mat-tab label="zoom"> 
+        <!-- zoom & scale -->
         <div class="menu">
-        <div class="scale">
-            <label for="zoomScale">Scale: </label>
-            <mat-slider [min]="minValue" [max]="maxValue" [step]="step" >
-                <input 
-                    id="scale" 
-                    matSliderThumb
-                    [formControl]="scale"   
-                    [(value)]="matSliderScaleValue" 
-                    (valueChange)="onMatSliderScaleValueUpdated()" 
-                    (change)="onMatSliderScaleValueUpdated()"
-                >
-            </mat-slider>
-        </div>
-        <div class="zoom">
-            <label for="zoom">Zoom: </label>
-            <mat-slider min="2" max="14" step="1" >
-                <input 
-                    matSliderThumb 
-                    id="zoom" 
-                    [formControl]="zoom"
-                    [(value)]="matSliderZoomValue" 
-                    (change)="onZoomClick()"
-                    (valueChange)="onZoomClick()"
+            <div class="scale">
+                <label for="zoomScale">Scale: </label>
+                <mat-slider [min]="minValue" [max]="maxValue" [step]="step" >
+                    <input 
+                        id="scale" 
+                        matSliderThumb
+                        [formControl]="scale"   
+                        [(value)]="matSliderScaleValue" 
+                        (valueChange)="onMatSliderScaleValueUpdated()" 
+                        (change)="onMatSliderScaleValueUpdated()"
                     >
-            </mat-slider>
-        </div>
+                </mat-slider>
+            </div>
+            <div class="zoom">
+                <label for="zoom">Zoom: </label>
+                <mat-slider min="2" max="14" step="1" >
+                    <input 
+                        matSliderThumb 
+                        id="zoom" 
+                        [formControl]="zoom"
+                        [(value)]="matSliderZoomValue" 
+                        (change)="onZoomClick()"
+                        (valueChange)="onZoomClick()"
+                        >
+                </mat-slider>
+            </div>
     </div>
     </mat-tab>
     <mat-tab label="Paint">
+        <!-- paint on the map: point, line or poligon -->
         <div class="menu">
             <div class="button-container">
                 <mat-form-field appearance="fill">
@@ -81,7 +84,7 @@
     </mat-tab>
     <mat-tab label="Buttons"> 
         <div class="menu">
-            
+            <!-- blue lines layer activation -->
             <div class="button-container">
             <button 
                 mat-raised-button 
@@ -91,7 +94,7 @@
                 Activate Blue lines Layer
             </button>
            </div>
-           
+           <!-- show table if you have results -->
            <mat-accordion class="example-headers-align">
             <mat-expansion-panel 
                 expanded="false" 

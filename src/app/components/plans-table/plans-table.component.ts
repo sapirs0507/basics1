@@ -8,6 +8,8 @@ import { PeriodicElement } from 'src/app/interfaces/PeriodicElement.interface';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PlansTableComponent {
+  // elements to display in the table
   @Input('data') dataSource?: PeriodicElement[] ;
+  // column names 
   displayedColumns: string[] = [ 'name', 'dunam', 'status'];
 }

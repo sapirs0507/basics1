@@ -2,7 +2,6 @@ import { OnInit, Injectable, OnDestroy, ElementRef } from '@angular/core';
 import { environment } from 'src/environments/environment.development';
 import { BlueLinesLayer, fillSymbol, IsraelCoordinates, lineSymbol, symbol } from 'src/app/config/esri-map.config';
 import { graphicalChoices, onClickEventChoices } from 'src/app/enums/graphicalChoices.enum';
-
 import SpatialReference from '@arcgis/core/geometry/SpatialReference';
 import esriConfig from "@arcgis/core/config";
 import Map from '@arcgis/core/Map';
@@ -21,11 +20,7 @@ import * as query from "@arcgis/core/rest/query";
 import Legend from "@arcgis/core/widgets/Legend";
 import Expend from "@arcgis/core/widgets/Expand";
 
-
-
-
 import Query from "@arcgis/core/rest/support/Query";
-
 
 import { takeUntil } from 'rxjs';
 import { Subject } from 'rxjs';
@@ -62,7 +57,7 @@ export class EsriMapRxjsService implements OnInit, OnDestroy {
   })
 
   constructor() {
-    console.log("esri-map service component -> constructor")
+    // console.log("esri-map service component -> constructor")
 
     //subscription for the DOM element ref - is it already initialized or not
     this.container
@@ -80,11 +75,11 @@ export class EsriMapRxjsService implements OnInit, OnDestroy {
   
 
   ngOnInit(): void {
-    console.log("esri-map service component -> ngOnInit");
+    // console.log("esri-map service component -> ngOnInit");
   }
 
   ngOnDestroy(): void {
-    console.log("esri-map service component -> ngOnDestroy")
+    // console.log("esri-map service component -> ngOnDestroy")
 
     this.untilServiceFinished.complete(); // unsubscribe from all the observables
     this.mapView?.destroy(); // destory map
@@ -180,6 +175,10 @@ export class EsriMapRxjsService implements OnInit, OnDestroy {
       
   }
 
+  deleteArrayItems = (array: Array<any>) => {
+    array?.splice(0);
+  }
+
   setMapViewEvents = () => {
     //onClick event
     this.mapView?.when(()=>{
@@ -207,13 +206,13 @@ export class EsriMapRxjsService implements OnInit, OnDestroy {
   }
 
   private OnGraphicalChoiceEvent = (event: esri.ViewClickEvent) => {
+    // choose which graphical choice you want to add to the graphic layer: point, line or polygon
     switch (this.graphicalChoice) {
       case graphicalChoices.points:
         this.addPointToMapView(event.mapPoint);
         break;
       case graphicalChoices.lines:
-        this.linesArray.push(event.mapPoint);
-        this.addLineToMapView()
+        this.handleLines(event);
         break;
       case graphicalChoices.polygon:
         this.addPolygon();
@@ -222,6 +221,15 @@ export class EsriMapRxjsService implements OnInit, OnDestroy {
         
         break;
     }
+  }
+
+  handleLines = (event: esri.ViewClickEvent) => {
+    if(event.button === 2){ //right click finishes the n-th continuous line
+      this.deleteArrayItems(this.linesArray);
+      return;
+    }
+    this.linesArray.push(event.mapPoint);
+    this.addLineToMapView()
   }
 
   addMapImageLayer = () => {
@@ -255,13 +263,14 @@ export class EsriMapRxjsService implements OnInit, OnDestroy {
       ]
     });
 
-    
+    // load the resources referenced in this class
     layer.load();
 
     layer.when(() =>{
       // layer instance created
           this.map?.add(layer);
     }).then(()=>{
+      // after the layer is added get the legend for the layer
       this.getLegend();
     })
 
@@ -279,6 +288,7 @@ export class EsriMapRxjsService implements OnInit, OnDestroy {
 
   addLineToMapView = () => {
     // take Point object array from the event and add it to the graphics layer
+    if(!(this.linesArray && this.linesArray.length > 1)) return;
 
     var polyline = new Polyline({
       hasM: true,
@@ -305,6 +315,14 @@ export class EsriMapRxjsService implements OnInit, OnDestroy {
 
     this.mapView?.graphics.add(graphicLines);
 
+  }
+
+  private addPointToPolygonArray = (point: esri.Point) => {
+    this.polygonArray?.push(point);
+  }
+
+  private addPointsToPolygonArray = (points: esri.Point[]) => {
+    points.forEach(point=>this.addPointToPolygonArray(point));
   }
 
   addPolygon = () => {
@@ -344,6 +362,7 @@ export class EsriMapRxjsService implements OnInit, OnDestroy {
       geometry: poligon,
       symbol: fillSymbol //symbol from the config page
     });
+    
     this.mapView?.graphics.add(graphic);
 
   }
@@ -373,24 +392,24 @@ export class EsriMapRxjsService implements OnInit, OnDestroy {
     }
   }
 
-  filterLayerByExtent = (point: esri.Point) => {
-    const currentExtent = this.mapView?.extent as Extent;
+  // filterLayerByExtent = (point: esri.Point) => {
+  //   const currentExtent = this.mapView?.extent as Extent ;
    
 
-    const query = new Query({
-      outFields: ['pl_name', 'pl_number', 'plan_area_name', 'station_desc', 'shape_area'],
-      returnQueryGeometry: true,
-      outSpatialReference: currentExtent.spatialReference,
-      geometry: point,
-      spatialRelationship: "intersects",
-    });
+  //   const query = new Query({
+  //     outFields: ['pl_name', 'pl_number', 'plan_area_name', 'station_desc', 'shape_area'],
+  //     returnQueryGeometry: true,
+  //     outSpatialReference: currentExtent.spatialReference,
+  //     geometry: point,
+  //     spatialRelationship: "intersects",
+  //   });
 
-    this.mapView?.layerViews.forEach(layerView=>{
-      console.log(layerView.layer.type) 
-    })
+  //   this.mapView?.layerViews.forEach(layerView=>{
+  //     console.log(layerView.layer.type) 
+  //   })
 
 
-  }
+  // }
 
   queryForPlansByClickOnPoint = (event: esri.ViewClickEvent) => {
     const currentExtent = this.mapView?.extent as Extent;

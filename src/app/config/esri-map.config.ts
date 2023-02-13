@@ -1,7 +1,7 @@
 import SpatialReference from "@arcgis/core/geometry/SpatialReference";
 import { environment } from "src/environments/environment.development";
 
-
+const BlueLineQueryOutFields = ['pl_name', 'station_desc', 'pl_area_dunam']
 
 const BlueLinesLayer = {
     title: 'blue lines',
@@ -10,6 +10,11 @@ const BlueLinesLayer = {
     minScale: 50000,
     maxScale: 0,
     wkid: 2039,
+    highlightOptions:{
+      haloOpacity:0.9,
+      fillOpacity:0.2,
+      color:[255,255,0,1],
+    },
     fullExtent: {
         SpatialReference: new SpatialReference({
             wkid: 2039
@@ -57,4 +62,12 @@ const lineSymbol = {
     }
   };
 
-export {BlueLinesLayer, IsraelCoordinates, symbol, lineSymbol, fillSymbol}
+  export const matSliderScaleValue = 5000000;
+  export const matSliderZoomValue = 7;
+  export const  minValue = 500;
+  export const maxValue = 5000000;
+  export const step = 1;
+
+  export const GrahpicalChoicesControl = -1;
+
+export {BlueLinesLayer,BlueLineQueryOutFields, IsraelCoordinates, symbol, lineSymbol, fillSymbol}
